@@ -21,14 +21,19 @@
             "popups-default",
             "scalebar",
             "locateme",
-            "parameter-url",
             "search-ui",
             "locator-store",
             "toc",
-            "sample_helloworld"
+            "dn_urlcoordinates"
         ]
     },
     "bundles": {
+        "dn_urlcoordinates": {
+            "Config": {
+                "verboseInput": true,
+                "highlightCenter": true
+            }
+        },
         "banner": {
             "BannerWidget": {
                 "label": "Developer Network",
@@ -79,7 +84,7 @@
         },
         "toc": {
             "Config": {
-                "showBasemaps" : true,
+                "showBasemaps": true,
                 "showLayerLegend": true
             }
         },

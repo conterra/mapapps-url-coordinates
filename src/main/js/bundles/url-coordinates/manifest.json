@@ -1,0 +1,44 @@
+{
+    "name": "dn_urlcoordinates",
+    "version": "1.0.0-SNAPSHOT",
+    "title": "${bundleName}",
+    "description": "${bundleDescription}",
+    "vendor": "con terra GmbH",
+    "productName": "devnet-mapapps-url-coordinates",
+    "keywords": [
+        "url",
+        "coordinates",
+        "url parameters"
+    ],
+    "layer": "module",
+    "i18n": [
+        "bundle"
+    ],
+    "dependencies": {
+        "parametermanager": "^4.13.0"
+    },
+    "components": [
+        {
+            "name": "Config",
+            "impl": "./URLCoordinatesHandler",
+            "provides": [
+                "parametermanager.Parametrizable"
+            ],
+            "propertiesConstructor": true,
+            "properties": {
+                "verboseInput": true,
+                "highlightCenter": true
+            },
+            "references": [
+                {
+                    "name": "_mapWidgetModel",
+                    "providing": "map-widget.MapWidgetModel"
+                },
+                {
+                    "name": "_highlighter",
+                    "providing": "highlights.HighlightService"
+                }
+            ]
+        }
+    ]
+}

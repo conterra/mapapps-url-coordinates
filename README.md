@@ -4,7 +4,7 @@ The Url Coordinates Bundle allows you to add a coordinate definition to the app 
 ![Screenshot App](https://github.com/conterra/mapapps-url-coordinates/blob/main/screenshot.JPG)
 
 ## Sample App
-https://demos.conterra.de/mapapps/resources/apps/downloads_urlcoordinates/index.html
+https://demos.conterra.de/mapapps/resources/apps/downloads_urlcoordinates/index.html?showCoord=51.96251,7.62519,4326
 
 ## Build
 ![example workflow](https://github.com/conterra/mapapps-url-coordinates/actions/workflows/devnet-bundle-snapshot.yml/badge.svg)

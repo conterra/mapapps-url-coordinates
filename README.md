@@ -1,7 +1,7 @@
 # Url Coordinates
 The Url Coordinates Bundle allows you to add a coordinate definition to the app URL, which will be applied on startup.
 
-![Screenshot App](https://github.com/conterra/mapapps-url-coordinates/blob/main/screenshot.JPG)
+![Screenshot App](https://github.com/conterra/mapapps-url-coordinates/blob/master/screenshot.JPG)
 
 ## Sample App
 https://demos.conterra.de/mapapps/resources/apps/downloads_urlcoordinates/index.html?showCoord=51.96251,7.62519,4326

@@ -205,8 +205,6 @@ export default class URLCoordinatesHandler {
      * @private
      */
     _applyInputsToMap(splitCoords, highlightCenter) {
-        const highlighter = this._highlighter;
-
         // calculate new map center with given coordinates (and WKID if applicable)
         const URLCenter = this._getCenterFromURL(splitCoords);
 
@@ -214,9 +212,31 @@ export default class URLCoordinatesHandler {
         this._getView().then(view => {
             view.center = URLCenter;
             if (highlightCenter) {
-                highlighter.highlight({
-                    geometry: URLCenter
-                });
+                const props = this._properties;
+                const highlighter = this._highlighter;
+                const highlighterSymbol = props.highlighterSymbol;
+                const highlighterTimeout = props.highlighterTimeout;
+
+                if (highlighterSymbol) {
+                    highlighter.highlight(
+                        {
+                            geometry: URLCenter,
+                            symbol: highlighterSymbol
+                        },
+                        {
+                            timeout: highlighterTimeout
+                        }
+                    );
+                } else {
+                    highlighter.highlight(
+                        {
+                            geometry: URLCenter
+                        },
+                        {
+                            timeout: highlighterTimeout
+                        }
+                    );
+                }
             }
         });
     }

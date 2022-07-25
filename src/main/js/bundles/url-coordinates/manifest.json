@@ -27,9 +27,11 @@
             "propertiesConstructor": true,
             "properties": {
                 "verboseInput": true,
-                "validateInput": true,
+                "validateInput": false,
+                "enableLoggerFeedback": true,
                 "highlightCenter": true,
-                "enableLoggerFeedback": true
+                "highlighterSymbol": null,
+                "highlighterTimeout": 0
             },
             "references": [
                 {

@@ -43,13 +43,23 @@ export default class URLCoordinatesHandler {
             // filter syntactically wrong showCoord values
             if (splitCoords.length === 1) {
                 if (splitCoords[0] === "") {
+                    if (props.enableLoggerFeedback) {
+                        this._logger.error("URL-Coordinates: " + i18n.errors.emptyCoordinates);
+                    }
                     throw new Error(i18n.errors.emptyCoordinates);
                 } else {
+                    if (props.enableLoggerFeedback) {
+                        this._logger.error("URL-Coordinates: " + i18n.errors.malformedCoordinates);
+                    }
                     throw new Error(i18n.errors.malformedCoordinates);
                 }
             } else {
-                this._validateInputs(splitCoords);
-                this._applyInputsToMap(splitCoords, props.highlightCenter);
+                if (props.validateInput) {
+                    this._validateInputs(splitCoords, props.enableLoggerFeedback);
+                    this._applyInputsToMap(splitCoords, props.highlightCenter);
+                } else {
+                    this._applyInputsToMap(splitCoords, props.highlightCenter);
+                }
             }
         }
     }
@@ -84,16 +94,17 @@ export default class URLCoordinatesHandler {
      * Wrapper method to validate both coordinate values and WKID with separate validation methods
      *
      * @param splitCoords Array of showCoord values split at ","
+     * @param enableLoggerFeedback Boolean determining whether errors will also be shown to the user
      *
      * @private
      */
-    _validateInputs(splitCoords) {
+    _validateInputs(splitCoords, enableLoggerFeedback) {
         splitCoords.forEach((value, index) => {
             if (index <= 1) {
-                this._validateCoordinateValue(value, index);
+                this._validateCoordinateValue(value, index, enableLoggerFeedback);
             }
             if (index === 2) {
-                this._validateWkidValue(value);
+                this._validateWkidValue(value, enableLoggerFeedback);
             }
         });
     }
@@ -107,15 +118,19 @@ export default class URLCoordinatesHandler {
      *
      * @param coordinateValue String containing coordinate value extracted vom showCoord URL parameter
      * @param index Integer used to determine whether x/long or y/lat coordinate is being validated
+     * @param enableLoggerFeedback Boolean determining whether errors will also be shown to the user
      *
      * @private
      */
-    _validateCoordinateValue(coordinateValue, index) {
+    _validateCoordinateValue(coordinateValue, index, enableLoggerFeedback) {
         const i18n = this._i18n.get();
         const coordFloat = parseFloat(coordinateValue);
 
         // check whether the coordinate is a number
         if (isNaN(coordFloat)) {
+            if (enableLoggerFeedback) {
+                this._logger.error("URL-Coordinates: " + i18n.errors.coordinateNaN);
+            }
             throw new Error(i18n.errors.coordinateNaN);
         }
 
@@ -123,11 +138,17 @@ export default class URLCoordinatesHandler {
         switch (index) {
             case 0:
                 if (!(coordFloat >= -180 && coordFloat <= 180)) {
+                    if (enableLoggerFeedback) {
+                        this._logger.error("URL-Coordinates: " + i18n.errors.coordinateExceedsLongitudeLimit);
+                    }
                     throw new Error(i18n.errors.coordinateExceedsLongitudeLimit);
                 }
                 break;
             case 1:
                 if (!(coordFloat >= -90 && coordFloat <= 90)) {
+                    if (enableLoggerFeedback) {
+                        this._logger.error("URL-Coordinates: " + i18n.errors.coordinateExceedsLatitudeLimit);
+                    }
                     throw new Error(i18n.errors.coordinateExceedsLatitudeLimit);
                 }
                 break;
@@ -142,23 +163,33 @@ export default class URLCoordinatesHandler {
      *      2. Must have between 4 and 5 digits
      *
      * @param wkidValue String containing WKID value extracted vom showCoord URL parameter
+     * @param enableLoggerFeedback Boolean determining whether errors will also be shown to the user
      *
      * @private
      */
-    _validateWkidValue(wkidValue) {
+    _validateWkidValue(wkidValue, enableLoggerFeedback) {
         const i18n = this._i18n.get();
         const wkidInt = parseInt(wkidValue);
 
         // check whether WKID is a number
         if (isNaN(wkidInt)) {
+            if (enableLoggerFeedback) {
+                this._logger.error("URL-Coordinates: " + i18n.errors.wkidNaN);
+            }
             throw new Error(i18n.errors.wkidNaN);
         }
 
         // check whether the number of digits meets requirements
         if (!(wkidValue.length >= 4 && wkidValue.length <= 5)) {
             if (wkidValue.length < 4) {
+                if (enableLoggerFeedback) {
+                    this._logger.error("URL-Coordinates: " + i18n.errors.wkidExceedsLowerLimit);
+                }
                 throw new Error(i18n.errors.wkidExceedsLowerLimit);
             } else {
+                if (enableLoggerFeedback) {
+                    this._logger.error("URL-Coordinates: " + i18n.errors.wkidExceedsUpperLimit);
+                }
                 throw new Error(i18n.errors.wkidExceedsUpperLimit);
             }
         }

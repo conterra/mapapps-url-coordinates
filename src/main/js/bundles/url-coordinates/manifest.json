@@ -27,7 +27,9 @@
             "propertiesConstructor": true,
             "properties": {
                 "verboseInput": true,
-                "highlightCenter": true
+                "validateInput": true,
+                "highlightCenter": true,
+                "enableLoggerFeedback": true
             },
             "references": [
                 {
@@ -37,6 +39,10 @@
                 {
                     "name": "_highlighter",
                     "providing": "highlights.HighlightService"
+                },
+                {
+                    "name": "_logger",
+                    "providing": "ct.framework.api.LogService"
                 }
             ]
         }

@@ -31,7 +31,9 @@
         "dn_urlcoordinates": {
             "Config": {
                 "verboseInput": true,
-                "highlightCenter": true
+                "validateInput": true,
+                "highlightCenter": true,
+                "enableLoggerFeedback": true
             }
         },
         "banner": {

@@ -16,13 +16,17 @@ The Url Coordinates Bundle allows you to add a coordinate definition to the app 
     "dn_urlcoordinates": {
         "Config": {
             "verboseInput": true,
-            "highlightCenter": true
+            "validateInput": true,
+            "highlightCenter": true,
+            "enableLoggerFeedback": true
         }
     },
     // [... addtional bundle configurations ...]
 }
 ```
-| Property          | Type      | Possible Values       | Default     | Description                                                                                                                                                                       |
-|-------------------|-----------|-----------------------|-------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| verboseInput      | Boolean   | `true` or `false`     | `true`      | Determines whether verbose input is allowed. If true inputs such as showCoord=(x = 51.96251, y = 7.62519, WKID = 4326) can be parsed. If false, such an input cannot be used.     |
-| highlightCenter   | Boolean   | `true` or `false`     | `true`      | Determines whether the center defined in showCoord will be highlighted with a marker.                                                                                             |
+| Property             | Type      | Possible Values       | Default     | Description                                                                                                                                                                       |
+|----------------------|-----------|-----------------------|-------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| verboseInput         | Boolean   | `true` or `false`     | `true`      | Determines whether verbose input is allowed. If true inputs such as showCoord=(x = 51.96251, y = 7.62519, WKID = 4326) can be parsed. If false, such an input cannot be used.     |
+| validateInput        | Boolean   | `true` or `false`     | `true`      | Determines whether the input value of showCoord will be validated.                                                                                                                |
+| highlightCenter      | Boolean   | `true` or `false`     | `true`      | Determines whether the center defined in showCoord will be highlighted with a marker.                                                                                             |
+| enableLoggerFeedback | Boolean   | `true` or `false`     | `true`      | Determines whether the user will be provided feedback if the input of showCoord is unusable.                                                                                      |

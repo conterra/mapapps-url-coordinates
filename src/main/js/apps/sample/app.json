@@ -30,6 +30,7 @@
     "bundles": {
         "dn_urlcoordinates": {
             "Config": {
+                "defaultWKID": 4326,
                 "verboseInput": true,
                 "validateInput": false,
                 "enableLoggerFeedback": true,

@@ -53,13 +53,17 @@ export default class URLCoordinatesHandler {
                     }
                     throw new Error(i18n.errors.malformedCoordinates);
                 }
+            }
+            if (splitCoords.length === 2) {
+                console.warn(i18n.errors.missingWKID);
+                splitCoords[2] = props.defaultWKID;
+            }
+
+            if (props.validateInput) {
+                this._validateInputs(splitCoords, props.enableLoggerFeedback);
+                this._applyInputsToMap(splitCoords, props.highlightCenter);
             } else {
-                if (props.validateInput) {
-                    this._validateInputs(splitCoords, props.enableLoggerFeedback);
-                    this._applyInputsToMap(splitCoords, props.highlightCenter);
-                } else {
-                    this._applyInputsToMap(splitCoords, props.highlightCenter);
-                }
+                this._applyInputsToMap(splitCoords, props.highlightCenter);
             }
         }
     }
@@ -77,7 +81,6 @@ export default class URLCoordinatesHandler {
     _cleanInput(input) {
         let cleanedInput = input.replaceAll("(", "");
         cleanedInput = cleanedInput.replaceAll(")", "");
-        cleanedInput = cleanedInput.replaceAll("°", "");
         cleanedInput = cleanedInput.replaceAll(" ", "");
         cleanedInput = cleanedInput.replaceAll("x:", "");
         cleanedInput = cleanedInput.replaceAll("x=", "");
@@ -101,7 +104,7 @@ export default class URLCoordinatesHandler {
     _validateInputs(splitCoords, enableLoggerFeedback) {
         splitCoords.forEach((value, index) => {
             if (index <= 1) {
-                this._validateCoordinateValue(value, index, enableLoggerFeedback);
+                this._validateCoordinateValue(value, index, splitCoords[2], enableLoggerFeedback);
             }
             if (index === 2) {
                 this._validateWkidValue(value, enableLoggerFeedback);
@@ -118,13 +121,15 @@ export default class URLCoordinatesHandler {
      *
      * @param coordinateValue String containing coordinate value extracted vom showCoord URL parameter
      * @param index Integer used to determine whether x/long or y/lat coordinate is being validated
+     * @param wkid Integer WKID used to determine threshold values to match coordinates against
      * @param enableLoggerFeedback Boolean determining whether errors will also be shown to the user
      *
      * @private
      */
-    _validateCoordinateValue(coordinateValue, index, enableLoggerFeedback) {
+    _validateCoordinateValue(coordinateValue, index, wkid, enableLoggerFeedback) {
         const i18n = this._i18n.get();
         const coordFloat = parseFloat(coordinateValue);
+        const parsedWKID = parseInt(wkid);
 
         // check whether the coordinate is a number
         if (isNaN(coordFloat)) {
@@ -134,22 +139,41 @@ export default class URLCoordinatesHandler {
             throw new Error(i18n.errors.coordinateNaN);
         }
 
+        // determine limits to check coordinates against
+        let xLowerLimit = Number.NEGATIVE_INFINITY;
+        let xUpperLimit = Number.POSITIVE_INFINITY;
+        let yLowerLimit = Number.NEGATIVE_INFINITY;
+        let yUpperLimit = Number.POSITIVE_INFINITY;
+
+        if (parsedWKID === 4326) {
+            xLowerLimit = -90;
+            xUpperLimit = 90;
+            yLowerLimit = -180;
+            yUpperLimit = 180;
+        }
+        if (parsedWKID === 25833) {
+            xLowerLimit = -2465144.80;
+            xUpperLimit = 4102893.55;
+            yLowerLimit = 776625.76;
+            yUpperLimit = 9408555.22;
+        }
+
         // check whether the coordinate matches the necessary ranges
         switch (index) {
             case 0:
-                if (!(coordFloat >= -180 && coordFloat <= 180)) {
+                if (!(coordFloat >= xLowerLimit && coordFloat <= xUpperLimit)) {
                     if (enableLoggerFeedback) {
-                        this._logger.error("URL-Coordinates: " + i18n.errors.coordinateExceedsLongitudeLimit);
+                        this._logger.error("URL-Coordinates: " + i18n.errors.coordinateExceedsXLimit + " [-90, 90].");
                     }
-                    throw new Error(i18n.errors.coordinateExceedsLongitudeLimit);
+                    throw new Error(i18n.errors.coordinateExceedsXLimit);
                 }
                 break;
             case 1:
-                if (!(coordFloat >= -90 && coordFloat <= 90)) {
+                if (!(coordFloat >= yLowerLimit && coordFloat <= yUpperLimit)) {
                     if (enableLoggerFeedback) {
-                        this._logger.error("URL-Coordinates: " + i18n.errors.coordinateExceedsLatitudeLimit);
+                        this._logger.error("URL-Coordinates: " + i18n.errors.coordinateExceedsYLimit + " [-180, 180].");
                     }
-                    throw new Error(i18n.errors.coordinateExceedsLatitudeLimit);
+                    throw new Error(i18n.errors.coordinateExceedsYLimit);
                 }
                 break;
         }
@@ -161,6 +185,7 @@ export default class URLCoordinatesHandler {
      * Validation criteria:
      *      1. Must be a number
      *      2. Must have between 4 and 5 digits
+     *      3. Must be usable by Esri ArcGIS API (automatically validated)
      *
      * @param wkidValue String containing WKID value extracted vom showCoord URL parameter
      * @param enableLoggerFeedback Boolean determining whether errors will also be shown to the user
@@ -169,10 +194,10 @@ export default class URLCoordinatesHandler {
      */
     _validateWkidValue(wkidValue, enableLoggerFeedback) {
         const i18n = this._i18n.get();
-        const wkidInt = parseInt(wkidValue);
+        const parsedWKID = parseInt(wkidValue);
 
         // check whether WKID is a number
-        if (isNaN(wkidInt)) {
+        if (isNaN(parsedWKID)) {
             if (enableLoggerFeedback) {
                 this._logger.error("URL-Coordinates: " + i18n.errors.wkidNaN);
             }
@@ -180,8 +205,8 @@ export default class URLCoordinatesHandler {
         }
 
         // check whether the number of digits meets requirements
-        if (!(wkidValue.length >= 4 && wkidValue.length <= 5)) {
-            if (wkidValue.length < 4) {
+        if (!(parsedWKID.toString().length >= 4 && parsedWKID.toString().length <= 5)) {
+            if (parsedWKID.toString().length < 4) {
                 if (enableLoggerFeedback) {
                     this._logger.error("URL-Coordinates: " + i18n.errors.wkidExceedsLowerLimit);
                 }
@@ -205,37 +230,76 @@ export default class URLCoordinatesHandler {
      * @private
      */
     _applyInputsToMap(splitCoords, highlightCenter) {
+        const transformer = this._coordinateTransformer;
+
         // calculate new map center with given coordinates (and WKID if applicable)
         const URLCenter = this._getCenterFromURL(splitCoords);
 
         // get view, set center and apply highlighting to center
         this._getView().then(view => {
-            view.center = URLCenter;
-            if (highlightCenter) {
-                const props = this._properties;
-                const highlighter = this._highlighter;
-                const highlighterSymbol = props.highlighterSymbol;
-                const highlighterTimeout = props.highlighterTimeout;
 
-                if (highlighterSymbol) {
-                    highlighter.highlight(
-                        {
-                            geometry: URLCenter,
-                            symbol: highlighterSymbol
-                        },
-                        {
-                            timeout: highlighterTimeout
+            // if showCoord and view differ in wkid
+            if (URLCenter.spatialReference.wkid !== view.spatialReference.wkid) {
+                transformer.transform(URLCenter, view.spatialReference.wkid).then((transformedCenter) => {
+                    view.center = transformedCenter;
+
+                    if (highlightCenter) {
+                        const props = this._properties;
+                        const highlighter = this._highlighter;
+                        const highlighterSymbol = props.highlighterSymbol;
+                        const highlighterTimeout = props.highlighterTimeout;
+
+                        if (highlighterSymbol) {
+                            highlighter.highlight(
+                                {
+                                    geometry: transformedCenter,
+                                    symbol: highlighterSymbol
+                                },
+                                {
+                                    timeout: highlighterTimeout
+                                }
+                            );
+                        } else {
+                            highlighter.highlight(
+                                {
+                                    geometry: transformedCenter
+                                },
+                                {
+                                    timeout: highlighterTimeout
+                                }
+                            );
                         }
-                    );
-                } else {
-                    highlighter.highlight(
-                        {
-                            geometry: URLCenter
-                        },
-                        {
-                            timeout: highlighterTimeout
-                        }
-                    );
+                    }
+                });
+            } else {
+                view.center = URLCenter;
+
+                if (highlightCenter) {
+                    const props = this._properties;
+                    const highlighter = this._highlighter;
+                    const highlighterSymbol = props.highlighterSymbol;
+                    const highlighterTimeout = props.highlighterTimeout;
+
+                    if (highlighterSymbol) {
+                        highlighter.highlight(
+                            {
+                                geometry: URLCenter,
+                                symbol: highlighterSymbol
+                            },
+                            {
+                                timeout: highlighterTimeout
+                            }
+                        );
+                    } else {
+                        highlighter.highlight(
+                            {
+                                geometry: URLCenter
+                            },
+                            {
+                                timeout: highlighterTimeout
+                            }
+                        );
+                    }
                 }
             }
         });
@@ -251,21 +315,24 @@ export default class URLCoordinatesHandler {
      * @private
      */
     _getCenterFromURL(splitCoords) {
+        const parsedWKID = parseInt(splitCoords[2]);
         let URLCenter;
 
-        // case: no WKID defined
-        if (splitCoords.length <= 2) {
+        if (parsedWKID === 25833) {
             URLCenter = new Point({
-                latitude: splitCoords[0],
-                longitude: splitCoords[1]
+                x: splitCoords[0],
+                y: splitCoords[1],
+                spatialReference: {
+                    wkid: splitCoords[2]
+                }
             });
-        }
-        // case: WKID defined
-        else {
+        } else {
             URLCenter = new Point({
                 latitude: splitCoords[0],
                 longitude: splitCoords[1],
-                wkid: splitCoords[2]
+                spatialReference: {
+                    wkid: splitCoords[2]
+                }
             });
         }
 

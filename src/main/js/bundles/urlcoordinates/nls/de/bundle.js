@@ -19,9 +19,10 @@ module.exports = {
     errors: {
         emptyCoordinates: "Parameter Error: showCoord wurde als URL Parameter angegeben, aber der Wert ist leer.",
         malformedCoordinates: "Parameter Error: showCoord wurde als URL Parameter angegeben, aber das Koordinaten-Tupel ist inkorrekt formatiert.",
+        missingWKID: "Parameter Warning: showCoord wurde als URL Parameter angegeben, aber es konnte keine WKID gefunden werden. Nutze Standardwert.",
         coordinateNaN: "Value Error: Eine der angegeben Koordinaten kann nicht als Zahl interpretiert werden.",
-        coordinateExceedsLongitudeLimit: "Value Error: Der angegebene x Wert liegt nicht im Wertebereich von [-180, 180].",
-        coordinateExceedsLatitudeLimit: "Value Error: Der angegebene y Wert liegt nicht im Wertebereich von [-90, 90].",
+        coordinateExceedsXLimit: "Value Error: Der angegebene x Wert liegt nicht im Wertebereich von",
+        coordinateExceedsYLimit: "Value Error: Der angegebene y Wert liegt nicht im Wertebereich von",
 
         wkidNaN: "Value Error: Die angegebene WKID kann nicht als Zahl interpretiert werden.",
         wkidExceedsLowerLimit: "Value Error: Die angegebene WKID ist zu kurz.",

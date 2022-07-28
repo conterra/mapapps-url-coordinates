@@ -26,6 +26,7 @@
             ],
             "propertiesConstructor": true,
             "properties": {
+                "defaultWKID": 4326,
                 "verboseInput": true,
                 "validateInput": false,
                 "enableLoggerFeedback": true,
@@ -45,6 +46,10 @@
                 {
                     "name": "_logger",
                     "providing": "ct.framework.api.LogService"
+                },
+                {
+                    "name": "_coordinateTransformer",
+                    "providing": "ct.api.coordinatetransformer.CoordinateTransformer"
                 }
             ]
         }

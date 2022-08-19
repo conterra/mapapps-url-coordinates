@@ -15,7 +15,7 @@ https://demos.conterra.de/mapapps/resources/apps/downloads_urlcoordinates/index.
 
 Simply add the bundle "dn_urlcoordinates" to your app.
 
-[dn_printingenhanced Documentation](https://github.com/conterra/mapapps-url-coordinates/tree/master/src/main/js/bundles/dn_urlcoordinates)
+[dn_urlcoordinates Documentation](https://github.com/conterra/mapapps-url-coordinates/tree/master/src/main/js/bundles/dn_urlcoordinates)
 
 ## Development Guide
 ### Define the mapapps remote base
